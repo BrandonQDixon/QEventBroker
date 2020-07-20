@@ -1,0 +1,52 @@
+{
+  "name": "q-event-broker",
+  "version": "1.0.0",
+  "description": "Event broker in Typescript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run test && npm run build",
+    "build": "npm run clear-build && tsc",
+    "clear-build": "del-cli ./dist",
+    "test": "npm run clear-build && npx jest --runInBand --no-cache && jest-coverage-badges",
+    "beautify": "npx prettier --write .",
+    "doc": "npx typedoc"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run beautify & npn run doc & npm run test"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrandonQDixon/TsEventBroker.git"
+  },
+  "author": "Brandon Dixon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrandonQDixon/TsEventBroker/issues"
+  },
+  "homepage": "https://github.com/BrandonQDixon/TsEventBroker#readme",
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.10.4",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/jest": "^26.0.3",
+    "@types/node": "^14.0.14",
+    "@types/node-fetch": "^2.5.7",
+    "babel-plugin-parameter-decorator": "^1.0.16",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
+    "del-cli": "^3.0.1",
+    "husky": "^4.2.5",
+    "jest": "^26.1.0",
+    "node-fetch": "^2.6.0",
+    "prettier": "2.0.5",
+    "ts-jest": "^26.1.1",
+    "typedoc": "^0.17.8",
+    "typedoc-umlclass": "^0.2.1",
+    "typescript": "^3.9.6",
+    "jest-coverage-badges": "^1.1.2"
+  },
+  "dependencies": {
+    "rxjs": "^6.6.0"
+  }
+}
