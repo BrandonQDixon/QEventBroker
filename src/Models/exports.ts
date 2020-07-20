@@ -1,2 +1,2 @@
-export * from "./IQEventBroker";
-export * from "./IQEvent";
+export * from './IQEventBroker';
+export * from './IQEvent';

@@ -1,10 +1,12 @@
-import {IQEventBroker, IQEventBrokerSubscriptionOptions} from "../Models/IQEventBroker";
-import {IQEvent} from "../Models/IQEvent";
-import {Observable, Subject} from "rxjs";
-import {filter, map, take} from "rxjs/operators";
+import {
+    IQEventBroker,
+    IQEventBrokerSubscriptionOptions,
+} from '../Models/IQEventBroker';
+import { IQEvent } from '../Models/IQEvent';
+import { Observable, Subject } from 'rxjs';
+import { filter, map, take } from 'rxjs/operators';
 
 export abstract class QEventBrokerBase implements IQEventBroker {
-
     private eventSubject: Subject<IQEvent>;
 
     constructor() {
@@ -19,19 +21,26 @@ export abstract class QEventBrokerBase implements IQEventBroker {
      * @param eventType
      * @param options
      */
-    event$<T = any>(eventType: string, options?: IQEventBrokerSubscriptionOptions): Observable<T> {
-
+    event$<T = any>(
+        eventType: string,
+        options?: IQEventBrokerSubscriptionOptions
+    ): Observable<T> {
         options = {
-            ...(options || {})
-        }
+            ...(options || {}),
+        };
 
-        let subscribable = <any>this.eventSubject.asObservable().pipe(
-            filter((event: IQEvent<T>) => {
-                return event && event.type === eventType;
-            }
-        )).pipe(map((event: IQEvent<T>) => {
-            return event.data;
-        }))
+        let subscribable = <any>this.eventSubject
+            .asObservable()
+            .pipe(
+                filter((event: IQEvent<T>) => {
+                    return event && event.type === eventType;
+                })
+            )
+            .pipe(
+                map((event: IQEvent<T>) => {
+                    return event.data;
+                })
+            );
 
         if (options.maxTimes) {
             subscribable = subscribable.pipe(take(options.maxTimes));
@@ -39,8 +48,12 @@ export abstract class QEventBrokerBase implements IQEventBroker {
         return subscribable;
     }
 
+    get events$(): Observable<IQEvent> {
+        return this.eventSubject.asObservable().pipe(filter((event) => !!event));
+    }
+
+
     dispatch(event: IQEvent): void {
         this.eventSubject.next(event);
     }
-
 }

@@ -1,9 +1,9 @@
-import {QEventBroker} from "../EventBroker/QEventBroker";
-import {DispatchOnReturn} from "../EventBroker/DispatchOnReturn";
-import exp from "constants";
+import { QEventBroker } from '../EventBroker/QEventBroker';
+import { DispatchOnReturn } from '../EventBroker/DispatchOnReturn';
+import exp from 'constants';
+import {of} from "rxjs";
 
 describe('QEventBroker tests', () => {
-
     let eventBroker: QEventBroker;
 
     beforeEach(() => {
@@ -11,9 +11,8 @@ describe('QEventBroker tests', () => {
     });
 
     it('should trigger subscription on event dispatch', async (done) => {
-
-        const eventName = "test";
-        const eventData = "green";
+        const eventName = 'test';
+        const eventData = 'green';
 
         eventBroker.event$(eventName).subscribe((data) => {
             expect(data).toBe(eventData);
@@ -22,57 +21,55 @@ describe('QEventBroker tests', () => {
 
         eventBroker.dispatch({
             type: eventName,
-            data: eventData
+            data: eventData,
         });
-
     }, 100);
 
     it('should trigger subscription multiple times on event dispatches', async (done) => {
-
-        const eventName = "test";
-        const eventData = "green";
+        const eventName = 'test';
+        const eventData = 'green';
 
         const maxEvents = 3;
         let numEvents = 0;
 
         eventBroker.event$(eventName).subscribe((data) => {
-            numEvents ++;
+            numEvents++;
             if (numEvents === maxEvents) {
                 expect(data).toBe(eventData);
                 done();
             }
         });
 
-        for (let i=0; i<maxEvents; i++) {
+        for (let i = 0; i < maxEvents; i++) {
             eventBroker.dispatch({
                 type: eventName,
-                data: eventData
+                data: eventData,
             });
         }
-
     }, 200);
 
     it('should trigger subscription up to max # times if option is provided', async (done) => {
-
-        const eventName = "test";
-        const eventData = "green";
+        const eventName = 'test';
+        const eventData = 'green';
 
         const maxEvents = 3;
         const maxOptions = 2;
         let numEvents = 0;
 
-        eventBroker.event$(eventName, {maxTimes: maxOptions}).subscribe((data) => {
-            numEvents ++;
-            expect(data).toBe(eventData);
-            if (numEvents > maxOptions) {
-                expect(false).toBeTruthy();
-            }
-        });
+        eventBroker
+            .event$(eventName, { maxTimes: maxOptions })
+            .subscribe((data) => {
+                numEvents++;
+                expect(data).toBe(eventData);
+                if (numEvents > maxOptions) {
+                    expect(false).toBeTruthy();
+                }
+            });
 
-        for (let i=0; i<maxEvents; i++) {
+        for (let i = 0; i < maxEvents; i++) {
             eventBroker.dispatch({
                 type: eventName,
-                data: eventData
+                data: eventData,
             });
         }
 
@@ -80,24 +77,70 @@ describe('QEventBroker tests', () => {
     });
 
     it('should dispatch event with decorator on class method', async (done) => {
-
-        const eventName = "test";
+        const eventName = 'test';
 
         class Test {
-
             @DispatchOnReturn({
                 eventBroker: eventBroker,
-                type: eventName
+                type: eventName,
             })
             getColor() {
-                return "green";
+                return 'green';
             }
-
         }
 
-        eventBroker.event$(eventName).subscribe(color => {
+        eventBroker.event$(eventName).subscribe((color) => {
             expect(color).toBeTruthy();
-            expect(typeof color).toBe("string");
+            expect(typeof color).toBe('string');
+            done();
+        });
+
+        new Test().getColor();
+    }, 200);
+
+    it('should dispatch event with decorator on class method and map result', async (done) => {
+        const eventName = 'test';
+
+        class Test {
+            @DispatchOnReturn({
+                eventBroker: eventBroker,
+                type: eventName,
+                mapReturnValue: (data) => data.color,
+            })
+            getColor() {
+                return {
+                    color: 'green',
+                };
+            }
+        }
+
+        eventBroker.event$(eventName).subscribe((color) => {
+            expect(color).toBeTruthy();
+            expect(typeof color).toBe('string');
+            done();
+        });
+
+        new Test().getColor();
+    }, 200);
+
+
+    it('should await event with decorator when promise is returned', async (done) => {
+
+        const eventName = 'test';
+
+        class Test {
+            @DispatchOnReturn({
+                eventBroker: eventBroker,
+                type: eventName,
+            })
+            getColor() {
+                return Promise.resolve('green');
+            }
+        }
+
+        eventBroker.event$(eventName).subscribe((color) => {
+            expect(color).toBeTruthy();
+            expect(typeof color).toBe('string');
             done();
         });
 
@@ -105,29 +148,23 @@ describe('QEventBroker tests', () => {
 
     }, 200);
 
-    it('should dispatch event with decorator on class method and map result', async (done) => {
+    it('should await event with decorator when observable is returned', async (done) => {
 
-        const eventName = "test";
+        const eventName = 'test';
 
         class Test {
-
             @DispatchOnReturn({
                 eventBroker: eventBroker,
                 type: eventName,
-                mapReturnValue: (data) => data.color
             })
             getColor() {
-                return {
-                    color: "green"
-                };
+                return of('green');
             }
-
         }
 
-        eventBroker.event$(eventName).subscribe(color => {
+        eventBroker.event$(eventName).subscribe((color) => {
             expect(color).toBeTruthy();
-            console.log(color);
-            expect(typeof color).toBe("string");
+            expect(typeof color).toBe('string');
             done();
         });
 

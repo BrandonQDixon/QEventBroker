@@ -4,6 +4,6 @@
  * Data is the event payload
  */
 export interface IQEvent<T = any> {
-    type: string,
-    data: T
+    type: string;
+    data: T;
 }
